@@ -1,4 +1,4 @@
-class TextInterface {
+export default class TextInterface {
     constructor ({inputElement, outputElement, beforeCommand, afterCommand}) {
         this.inputElement = inputElement;
         this.outputElement = outputElement;

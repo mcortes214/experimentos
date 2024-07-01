@@ -1,4 +1,4 @@
-class Estados {
+export default class Estados {
 
     constructor () {
         this.estados = {};
@@ -13,7 +13,18 @@ class Estados {
         delete this.estados[nombreEstado];
     }
 
-    definirAccion (nombreEstadoInicial, nombreAccion, nombreEstadoFinal) {
+    definirAccion ({origen, nombreAccion, destino}) {
+        const nombreEstadoInicial = origen;
+        const nombreEstadoFinal = destino;
+
+        if (! Object.hasOwn(this.estados, nombreEstadoInicial)) {
+            console.warn(`No hay ningún estado con el nombre ${nombreEstadoInicial}.`);
+            return;
+        }
+        if (! Object.hasOwn(this.estados, nombreEstadoFinal)) {
+            console.warn(`No hay ningún estado con el nombre ${nombreEstadoFinal}.`);
+            return;
+        }
         const estadoInicial = this.estados[nombreEstadoInicial];
         estadoInicial.acciones[nombreAccion] = nombreEstadoFinal;
     }
