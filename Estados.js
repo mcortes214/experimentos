@@ -1,3 +1,7 @@
+// La clase Estados está inspirada por la idea de máquinas de estados finitos.
+// Un objeto Estados tiene la forma un grafo dirigido, donde los nodos representan estados
+// y las aristas representan acciones que llevan de un estado a otro.
+
 export default class Estados {
 
     constructor () {

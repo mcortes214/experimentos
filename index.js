@@ -23,11 +23,16 @@ juego.definirEstado('cocina', {
 juego.definirEstado('dormitorio', {
     titulo: 'Dormitorio',
     msg: "El dormitorio está oscuro y fresco; el solo entrar te da ganas de echarte a descansar un rato."
-
 });
+
 juego.definirEstado('baño', {
     titulo: 'Baño',
     msg: "No hay nada muy interesante en el baño. Te quedás mirando el espejo que conseguiste esta semana en la feria; fue una buena compra."
+});
+
+juego.definirEstado('plaza', {
+    titulo: 'Plaza',
+    msg: "La plaza está llena de familias paseando, y de chicos jugando. También hay parejas y grupos de amigos que salieron de picnic."
 });
 
 
@@ -37,51 +42,53 @@ juego.definirAccion({origen: 'cocina', nombreAccion: 'dormitorio', destino: 'dor
 juego.definirAccion({origen: 'cocina', nombreAccion: 'exterior', destino: 'exterior'});
 juego.definirAccion({origen: 'baño', nombreAccion: 'cocina', destino: 'cocina'});
 juego.definirAccion({origen: 'dormitorio', nombreAccion: 'cocina', destino: 'cocina'});
-juego.definirAccion({origen: 'exterior', nombreAccion: 'casa', destino: 'cocina'});
+juego.definirAccion({origen: 'exterior', nombreAccion: 'interior', destino: 'cocina'});
+juego.definirAccion({origen: 'exterior', nombreAccion: 'plaza', destino: 'plaza'});
+juego.definirAccion({origen: 'plaza', nombreAccion: 'casa', destino: 'exterior'});
 
 juego.definirEstadoActual('cocina');
 
 
 // --- Crear interfaz de input/output ---
 
-// Comandos que siempre van a estar disponibles en la interfaz:
-const comandosGlobales = {
-    'acciones': () => {
-        return Object.keys(juego.listarAcciones()).map(accion => `\n > ${accion}`).join('');
-    },
-    'lugar': () => {
-        return `
-        --- ${juego.obtenerPropiedades().titulo} ---
-            ${juego.obtenerPropiedades().msg}
-            `;
-    }
+
+// Funciones para los comandos que se pueden ejecutar desde cualquier habitación.
+// Estas funciones siempre retornan texto (que se muestra en el elemento asignado como output)
+
+const listarAcciones = () => {
+    return Object.keys(juego.listarAcciones()).map(accion => `\n > ${accion}`).join('');
 };
 
-// Función que crea comandos para las acciones de la habitación en la que estamos:
-const comandosLocales = () => {
+const describirLugar = () => {
+    return `
+    --- ${juego.obtenerPropiedades().titulo} ---
+        ${juego.obtenerPropiedades().msg}
+        `;
+};
+
+// Función que crea los comandos que dependen de la habitación en la que estemos:
+
+const generarComandosLocales = () => {
     const nuevasAccionesPosibles = Object.keys(juego.listarAcciones());
     const nuevosComandos = {};
-
     nuevasAccionesPosibles.forEach( (accion) => {
         nuevosComandos[accion] = () => {
             juego.realizarAccion(accion);
-            // Retornar el texto que se va a mostrar en la interfaz:
-            return `
-            --- ${juego.obtenerPropiedades().titulo} ---
-            ${juego.obtenerPropiedades().msg}
-            `;
+            return describirLugar();
         }; 
     } );
-
     return nuevosComandos;
-}
+};
 
-const actualizarComandosInterfaz = () => {
-    const comandos = {};
-    Object.assign(comandos, comandosGlobales);
-    Object.assign(comandos, comandosLocales());
-    interfaz.defineCommands(comandos);
-}
+const actualizarComandosPosibles = () => {
+    interfaz.setCommands([
+        {
+            'acciones': listarAcciones,
+            'lugar': describirLugar,
+        },
+        generarComandosLocales()
+    ]);
+};
 
 // Construir la interfaz
 
@@ -89,10 +96,10 @@ const interfaz = new TextInterface({
     inputElement: document.querySelector('#input'),
     outputElement: document.querySelector('#output'),
     afterCommand: () => {
-        actualizarComandosInterfaz();
+        actualizarComandosPosibles();
     }
 });
 
 //Crear set inicial de comandos y mostrar lugar actual
-actualizarComandosInterfaz();
+actualizarComandosPosibles();
 interfaz.runCommand('lugar');

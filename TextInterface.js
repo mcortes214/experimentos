@@ -1,3 +1,6 @@
+// Toma textos del input, y como respuesta devuelve texto en el output.
+// A cada comando se asigna una función; esa función debe retornar texto.
+
 export default class TextInterface {
     constructor ({inputElement, outputElement, beforeCommand, afterCommand}) {
         this.inputElement = inputElement;
@@ -26,7 +29,25 @@ export default class TextInterface {
         this.afterCommand();
     }
 
-    defineCommands (commandObject) {
-        this.commands = Object.assign(commandObject);
+    addCommands (commandObjects) {
+        Object.assign(this.commands, commandObjects);
     }
+
+    resetCommands () {
+        console.log('--reset--');
+        this.commands = {};
+    }
+
+    setCommands (commandObjects) {
+        this.resetCommands();
+        if (! Array.isArray(commandObjects)) {
+            this.addCommands(commandObjects);
+            return;
+        }
+        // Si es un Array, iterar
+        for (let obj of commandObjects) {
+            this.addCommands(obj);
+        }
+    }
+
 }
