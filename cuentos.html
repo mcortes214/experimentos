@@ -29,7 +29,7 @@
                 const direction = i%2 * 2 - 1;
                 const baseAngle = nRolls%2 ? 0 : 1800;
                 const angle = Math.floor(Math.random()*3)*120 + baseAngle*direction;
-                console.log(wheel.style.setProperty("--r", `${angle}deg`));
+                wheel.style.setProperty("--r", `${angle}deg`);
             });
             nRolls++;
         }
