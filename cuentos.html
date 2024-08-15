@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="cuentos.css">
+    <title>Cuentos</title>
+</head>
+<body>
+    <button>Girar</button>
+
+    <div class="artefacto">
+        <img class="fondo" src="cuentos/img/fondo.png" alt="">
+        <img class="rueda rueda1" src="cuentos/img/rueda1.png" alt="">
+        <img class="rueda rueda2" src="cuentos/img/rueda2.png" alt="">
+        <img class="rueda rueda3" src="cuentos/img/rueda4.png" alt="">
+        <img class="rueda rueda4" src="cuentos/img/rueda3.png" alt="">
+        <img class="mascara" src="cuentos/img/mascara.png" alt="">
+        <img class="mascara" src="cuentos/img/tapita.png" alt="">
+    </div>
+    
+    <script>
+        const wheels = document.querySelectorAll('.rueda');
+
+        let nRolls = 0;
+
+        function roll() {
+            [...wheels].forEach((wheel, i) => {
+                const direction = i%2 * 2 - 1;
+                const baseAngle = nRolls%2 ? 0 : 1800;
+                const angle = Math.floor(Math.random()*3)*120 + baseAngle*direction;
+                console.log(wheel.style.setProperty("--r", `${angle}deg`));
+            });
+            nRolls++;
+        }
+
+        document.querySelector('button').addEventListener('click', roll);
+    </script>
+</body>
+</html>

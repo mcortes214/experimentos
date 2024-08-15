@@ -1,0 +1,45 @@
+button {
+    display: block;
+    margin: auto;
+}
+
+.artefacto {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.fondo, .mascara {
+    position: absolute;
+    left: 50%;
+    right: 50%;
+    transform: translate(-50%);
+}
+
+.rueda {
+    position: absolute;
+    left: 50%;
+    right: 50%;
+    --t: -50%;
+    --r: 0deg;
+    transition: 8s;
+    transform: translate(var(--t)) rotate(var(--r));
+}
+
+.mascara {
+    z-index: 2;
+}
+
+.rueda, .mascara, .fondo {
+    max-width: 500px;
+}
+
+.rueda1,
+.rueda2,
+.rueda3,
+.rueda4 {
+    --r: 0deg;
+}
