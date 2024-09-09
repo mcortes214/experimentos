@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="escenas.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <title>Escenas</title>
+</head>
+<body>
+
+    <!-- Reproductor placeholder. Se actualiza con los cambios de escena -->
+    <audio src=""></audio>
+
+    <!-- Inicio -->
+     <!-- Agregué esta escena solo para que haya una interacción 
+     y se reproduzca la música -->
+
+    <section class="escena" id="inicio">
+        <img
+            src="https://placehold.co/250?text=Ver grafo"
+            class="link"
+            style="left:40%"
+            onclick="realizarAccion('ver grafo')"
+        >
+        <img
+            src="https://placehold.co/250?text=Comenzar"
+            class="link"
+            onclick="realizarAccion('comenzar')"
+        >
+    </section>
+
+    <!-- Escena 1: Cocina -->
+
+    <section class="escena" id="cocina">
+
+        <img src="https://placehold.co/250?text=Puerta+al+patio"
+            onclick="realizarAccion('salir al patio')"
+            class="link"
+            style="left:10%; top:20%; transform:rotate(25deg)"
+        >
+
+        <img src="https://placehold.co/250?text=Mesa"
+            style="left:30%; top:60%; transform: scale(1.5) rotate(45deg);"
+        >
+
+        <img src="https://placehold.co/250?text=Persona+misteriosa"
+            style="right:0; bottom:0; transform: scale(0.75) rotate(-5deg);"
+        >
+
+        <img src="https://placehold.co/250?text=Terminar"
+            onclick="realizarAccion('terminar juego')"
+            class="link"
+            style="right:0; top:0"
+        >
+    </section>
+    
+    <!-- Escena 2: Patio -->
+
+    <section class="escena" id="patio">
+
+        <img src="https://placehold.co/250?text=Sillita"
+            style="left:10%; bottom:0%"
+        >
+
+        <img src="https://placehold.co/250?text=Sol"
+            style="right:30%; top:0; transform: scale(0.5) rotate(45deg);"
+        >
+
+        <img src="https://placehold.co/250?text=Puerta+a+la+cocina"
+            onclick="realizarAccion('volver adentro')"
+            class="link"
+            style="left:0; bottom:50%; transform: scale(0.75) rotate(-5deg);"
+        >
+
+        <img src="https://placehold.co/250?text=Terminar"
+            onclick="realizarAccion('terminar juego')"
+            class="link"
+            style="right:0; top:0"
+        >
+    </section>
+
+    <section class="escena" id="grafo">
+        <div id="contenedor-grafo"></div>
+        <img src="https://placehold.co/250x100?text=Volver"
+        onclick="realizarAccion('volver a inicio')"
+        class="link"
+        style="right:0; top:0"
+    >
+    </section>
+
+    <script type="module" src="escenas.js"></script>
+
+
+
+
+
+
+    <!-- ------------------------- -->
+
+
+
+
+    <!-- d3. Esto no es necesario pero por ahí está bueno al ir diseñando
+    la experiencia -->
+
+    <script>
+        const testJuego = setInterval(() => {
+            if (window.juego) {
+                clearInterval(testJuego);
+                d3Init();
+            }
+        })
+
+        function d3Init(){
+        console.log(juego);
+
+        const nodes = Object.keys(juego.estados).map(key => {
+            return {id: key}
+        });
+        console.log('nodes:', nodes);
+        const edges = juego.acciones.map(accion => {
+            return {
+                source: accion.origen,
+                target: accion.destino,
+                name: accion.nombreAccion
+            }
+        })
+        console.log('edges:', edges);
+
+         // Set up the SVG canvas dimensions
+         const width = 600;
+        const height = 400;
+
+        const svg = d3.select("#contenedor-grafo").append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        // Define arrow markers for graph links
+        svg.append("defs").append("marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 15)
+            .attr("refY", 0)
+            .attr("markerWidth", 10)
+            .attr("markerHeight", 10)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", "#999");
+
+        // Create a simulation with forces
+        const simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(edges).id(d => d.id).distance(300))
+            .force("charge", d3.forceManyBody().strength(-600))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .alpha(1)
+            .alphaDecay(0.02)
+            .alphaMin(0.1)
+
+        // Draw the edges (links) with curves
+        const link = svg.append("g")
+            .attr("class", "links")
+            .attr("fill", "transparent")
+            .selectAll("path")
+            .data(edges)
+            .enter().append("path")
+            .attr("class", "link");
+
+        // Draw the edge labels
+        const edgeLabels = svg.append("g")
+            .attr("class", "edge-labels")
+            .selectAll("text")
+            .data(edges)
+            .enter().append("text")
+            .attr("class", "edge-label")
+            .text(d => d.name);
+
+        // Draw the nodes
+        const node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("g")
+            .data(nodes)
+            .enter().append("g");
+
+        node.append("circle")
+            .attr("r", 20)
+            .attr("stroke", "blue")
+            .attr("fill", "transparent");
+
+        node.append("text")
+            .attr("x", 6)
+            .attr("y", 3)
+            .text(d => d.id);
+
+        // Function to calculate the path for curved edges
+        function curvedPath(d) {
+            const dx = d.target.x - d.source.x;
+            const dy = d.target.y - d.source.y;
+            const dr = Math.sqrt(dx * dx + dy * dy);
+            return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+        }
+
+        // Update the positions of nodes, edges, and edge labels on each tick
+        simulation.on("tick", () => {
+            link.attr("d", curvedPath);
+
+            edgeLabels
+                .attr("x", d => (d.source.x*5 + d.target.x) / 6)
+                .attr("y", d => (d.source.y*5 + d.target.y) / 6);
+
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+        }
+    </script>
+</body>
+</html>
